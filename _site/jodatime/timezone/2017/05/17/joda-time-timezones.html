@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Joda Time Daylight Savings Hour</title>
+  <meta name="description" content="tl;dr: Be very careful when parsing DateTimeFormat with PST or PDT with joda.time.DateTime. joda.util.DateTime does not know the difference between PST/PDT w...">
+
+  <link rel="stylesheet" href="/assets/main.css">
+  <link rel="canonical" href="http://localhost:4000/jodatime/timezone/2017/05/17/joda-time-timezones.html">
+  <link rel="alternate" type="application/rss+xml" title="Mark Wang&#39;s Bloog" href="/feed.xml">
+  
+  
+</head>
+
+
+  <body>
+
+    <header class="site-header" role="banner">
+
+  <div class="wrapper">
+    
+    
+    <a class="site-title" href="/">Mark Wang&#39;s Bloog</a>
+  
+    
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+              <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+              <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          
+            
+            
+            <a class="page-link" href="/about/">About</a>
+            
+          
+            
+            
+          
+            
+            
+          
+            
+            
+          
+        </div>
+      </nav>
+    
+  </div>
+</header>
+
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Joda Time Daylight Savings Hour</h1>
+    <p class="post-meta">
+      <time datetime="2017-05-17T16:00:00-07:00" itemprop="datePublished">
+        
+        May 17, 2017
+      </time>
+      </p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p><strong>tl;dr:</strong> Be very careful when parsing DateTimeFormat with PST or PDT with <code class="highlighter-rouge">joda.time.DateTime</code>. <strong>joda.util.DateTime does not know the difference between PST/PDT when parsing a string.</strong> In you can, use ‘ZZ’ (-08:00) instead of ‘zzz’ (PST). <a href="http://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html">Joda Time Formats</a></p>
+
+<h3 id="daylight-savings-hour">Daylight Savings Hour</h3>
+
+<p>Pop quiz: what’s the difference between PST and PDT (or EST vs EDT)? The answer is the first stands for Pacific <em>Standard</em> Time, and the second stands for Pacific <em>Daylight</em> Time. More concretely, PST is UTC-08:00 (UTC time minus 8 hours), whereas PDT is UTC-07:00 (UTC minus 7 hours).</p>
+
+<h3 id="okay-so-pst-0800-are-interchangeable-in-jodatime">Okay, so PST/-08:00 are interchangeable in JodaTime?</h3>
+
+<p><strong>NOOOOOOOOOOO!!!!!!</strong> Consider this following piece of code.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">org.joda.time.*</span>
+
+<span class="n">DateTimeFormatter</span> <span class="n">dtf</span> <span class="o">=</span> <span class="n">DateTimeFormat</span><span class="o">.</span><span class="na">forPattern</span><span class="o">(</span><span class="s">"yyyy-MM-dd HH:mm:ss.SSS zzz"</span><span class="o">)</span>
+<span class="n">DateTime</span> <span class="n">sooner</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DateTime</span><span class="o">(</span><span class="mi">1478420000000L</span><span class="o">,</span> <span class="n">DateTimeZone</span><span class="o">.</span><span class="na">forID</span><span class="o">(</span><span class="s">"America/Los_Angeles"</span><span class="o">))</span> 
+<span class="n">DateTime</span> <span class="n">later</span>  <span class="o">=</span> <span class="k">new</span> <span class="n">DateTime</span><span class="o">(</span><span class="mi">1478423000000L</span><span class="o">,</span> <span class="n">DateTimeZone</span><span class="o">.</span><span class="na">forID</span><span class="o">(</span><span class="s">"America/Los_Angeles"</span><span class="o">))</span> 
+<span class="c1">// sooner is "2016-11-06 01:13:20.000-07:00", whereas later is "2016-11-06 01:03:20.000-08:00"</span>
+<span class="c1">// Note that later has a lower time even though it is later since it just passed into daylight savings time.</span>
+
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">later</span><span class="o">.</span><span class="na">isAfter</span><span class="o">(</span><span class="n">sooner</span><span class="o">))</span></code></pre></figure>
+
+<p>What do you think the output is? Fortunately, it’s <code class="highlighter-rouge">true</code>. So far, so good. However, look at what happens when you parse the string back into DateTime.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">String</span> <span class="n">sooner_string</span> <span class="o">=</span> <span class="n">sooner</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">dtf</span><span class="o">)</span>
+<span class="n">String</span> <span class="n">later_string</span>  <span class="o">=</span> <span class="n">later</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">dtf</span><span class="o">)</span>
+<span class="c1">// sooner_string = "2016-11-06 01:13:20.000 PDT"</span>
+<span class="c1">// later_string  = "2016-11-06 01:03:20.000 PST"</span>
+
+
+<span class="n">DateTime</span> <span class="n">sooner_parsed</span> <span class="o">=</span> <span class="n">DateTime</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">sooner_string</span><span class="o">,</span> <span class="n">dtf</span><span class="o">)</span>
+<span class="n">DateTime</span> <span class="n">later_parsed</span>  <span class="o">=</span> <span class="n">DateTime</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">later_string</span><span class="o">,</span> <span class="n">dtf</span><span class="o">)</span>  
+
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">later_parsed</span><span class="o">.</span><span class="na">isAfter</span><span class="o">(</span><span class="n">sooner_parsed</span><span class="o">))</span></code></pre></figure>
+
+<p><strong>Surprisingly, the output is <code class="highlighter-rouge">false</code>.</strong> It appears that even though JodaTime recognizes the difference between PDT/PST when writing to string, it doesn’t recognize the difference when parsing the string back into DateTime. This is confirmed by</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">val</span> <span class="n">pdtMillis</span> <span class="o">=</span> <span class="n">DateTime</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">"2016-11-06 01:03:20.000 PDT"</span><span class="o">,</span> <span class="n">dtf</span><span class="o">).</span><span class="na">getMillis</span>
+<span class="n">val</span> <span class="n">pstMillis</span> <span class="o">=</span> <span class="n">DateTime</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="s">"2016-11-06 01:03:20.000 PST"</span><span class="o">,</span> <span class="n">dtf</span><span class="o">).</span><span class="na">getMillis</span>
+
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">pdtMillis</span><span class="o">)</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">pstMillis</span><span class="o">)</span></code></pre></figure>
+
+<p>The output for both lines will be <code class="highlighter-rouge">1478430000000L</code>. <strong>When parsing timezones, DateTime is indifferent to PST/PDT, even though those represent different offsets!</strong> I haven’t tried this with out Daylights Savings Times like EST/EDT, but I imagine the effect is the same.</p>
+
+<h3 id="so-does-that-mean-all-my-stringified-pst-times-are-invalid-when-parsed">So does that mean all my stringified PST times are invalid when parsed?</h3>
+
+<p>Not necessarily. So while <code class="highlighter-rouge">joda.time.DateTime</code> treats PST/PDT the same when parsing, it really shouldn’t affect any time except the one hour when it’s possible to overlap: it’s smart enough to know what you mean except for the one hour in the fall when daylight savings can <a href="https://stackoverflow.com/tags/dst/info">overlap</a>. However, if you have records that require/record precise timing, it may cause bugs during that hour.</p>
+
+<h3 id="so-what-should-i-do">So what should I do?</h3>
+
+<p>While JodaTime seems to parse PDT/PST identically, it does not do the same for the underlying offsets -08:00/-07:00. So, my advice is to use numerical offsets, and only use human readable timezones when you have to show it to users.</p>
+
+<h3 id="couldnt-all-of-this-complexity-been-avoided-by-just-using-datetime-objectunix-time">Couldn’t all of this complexity been avoided by just using DateTime object/unix time?</h3>
+
+<p>Yes, excellent point: why even go through all this hassle of serializing DateTime to string and back? In my situation, I had to to write DateTime to s3, so I had to serialize the object, and human readable string seemed better to me than byte array. In addition, I wanted time zone information, so I didn’t want to use unix time. But in general, unnecessary serialization/confusing offsets should be avoided, precisely because it’s a source of bugs such as this.</p>
+
+
+  </div>
+
+  
+</article>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Mark Wang&#39;s Bloog</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>
+            
+              Mark Wang&#39;s Bloog
+            
+            </li>
+            
+            <li><a href="mailto:zhengkaw@gmail.com">zhengkaw@gmail.com</a></li>
+            
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/theluxury"><span class="icon icon--github"><svg viewBox="0 0 16 16" width="16px" height="16px"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">theluxury</span></a>
+
+          </li>
+          
+
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Tips and tricks for getting the max performance from your MySQL PostgreSQL Redshift databases.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
