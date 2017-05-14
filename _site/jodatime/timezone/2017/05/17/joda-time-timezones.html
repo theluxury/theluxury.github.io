@@ -77,7 +77,7 @@
   </header>
 
   <div class="post-content" itemprop="articleBody">
-    <p><strong>tl;dr:</strong> Be very careful when parsing DateTimeFormat with PST or PDT with <code class="highlighter-rouge">joda.time.DateTime</code>. <strong>joda.util.DateTime does not know the difference between PST/PDT when parsing a string.</strong> In you can, use ‘ZZ’ (-08:00) instead of ‘zzz’ (PST). <a href="http://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html">Joda Time Formats</a></p>
+    <p><strong>tl;dr:</strong> Be very careful when parsing DateTimeFormat with PST or PDT with <code class="highlighter-rouge">joda.time.DateTime</code>. <strong><code class="highlighter-rouge">joda.util.DateTime</code> does not know the difference between PST/PDT when parsing a string.</strong> In you can, use ‘ZZ’ (-08:00) instead of ‘zzz’ (PST). <a href="http://www.joda.org/joda-time/apidocs/org/joda/time/format/DateTimeFormat.html">Joda Time Formats</a></p>
 
 <h3 id="daylight-savings-hour">Daylight Savings Hour</h3>
 
