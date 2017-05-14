@@ -5,7 +5,7 @@ date:   2017-05-17 16:00:00 -0700
 categories: JodaTime Timezone
 ---
 
-**tl;dr:** Be very careful when parsing DateTimeFormat with PST or PDT with `joda.time.DateTime`. **`joda.util.DateTime` does not know the difference between PST/PDT when parsing a string.** In you can, use 'ZZ' (-08:00) instead of 'zzz' (PST). [Joda Time Formats][joda-time-format]
+**tl;dr:** Be very careful when parsing DateTimeFormat with PST or PDT with `joda.time.DateTime`. **`joda.time.DateTime` does not know the difference between PST/PDT when parsing a string.** In you can, use 'ZZ' (-08:00) instead of 'zzz' (PST). [Joda Time Formats][joda-time-format]
 
 ### Daylight Savings Hour
 
