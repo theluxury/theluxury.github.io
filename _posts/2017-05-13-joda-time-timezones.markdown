@@ -1,18 +1,18 @@
 ---
 layout: post
-title:  "Joda Time Daylight Savings Hour"
+title:  "Joda-Time Daylight Savings Hour"
 date:   2017-05-17 16:00:00 -0700
-categories: JodaTime Timezone
+categories: Joda-Time Timezone
 ---
 
-**tl;dr:** Be very careful when parsing DateTimeFormat with PST or PDT with `joda.time.DateTime`. **`joda.time.DateTime` does not know the difference between PST/PDT when parsing a string.** In you can, use 'ZZ' (-08:00) instead of 'zzz' (PST). [Joda Time Formats][joda-time-format]
+**tl;dr:** Be very careful when parsing DateTimeFormat with PST or PDT with `joda.time.DateTime`. **`joda.time.DateTime` does not know the difference between PST/PDT when parsing a string.** In you can, use 'ZZ' (-08:00) instead of 'zzz' (PST). [Joda-Time Formats][joda-time-format]
 
 ### Daylight Savings Hour
 
 
 Pop quiz: what's the difference between PST and PDT (or EST vs EDT)? The answer is the first stands for Pacific _Standard_ Time, and the second stands for Pacific _Daylight_ Time. More concretely, PST is UTC-08:00 (UTC time minus 8 hours), whereas PDT is UTC-07:00 (UTC minus 7 hours). 
 
-### Okay, so PST/-08:00 are interchangeable in JodaTime?
+### Okay, so PST/-08:00 are interchangeable in Joda-Time?
 
 
 **NOOOOOOOOOOO!!!!!!** Consider this following piece of code.
@@ -44,7 +44,7 @@ DateTime later_parsed  = DateTime.parse(later_string, dtf)
 System.out.println(later_parsed.isAfter(sooner_parsed))
 {% endhighlight %}
 
-**Surprisingly, the output is `false`.** It appears that even though JodaTime recognizes the difference between PDT/PST when writing to string, it doesn't recognize the difference when parsing the string back into DateTime. This is confirmed by
+**Surprisingly, the output is `false`.** It appears that even though Joda-Time recognizes the difference between PDT/PST when writing to string, it doesn't recognize the difference when parsing the string back into DateTime. This is confirmed by
 
 {% highlight java %}
 val pdtMillis = DateTime.parse("2016-11-06 01:03:20.000 PDT", dtf).getMillis
@@ -63,7 +63,7 @@ Not necessarily. So while `joda.time.DateTime` treats PST/PDT the same when pars
 
 ### So what should I do?
 
-While JodaTime seems to parse PDT/PST identically, it does not do the same for the underlying offsets -08:00/-07:00. So, my advice is to use numerical offsets, and only use human readable timezones when you have to show it to users.
+While Joda-Time seems to parse PDT/PST identically, it does not do the same for the underlying offsets -08:00/-07:00. So, my advice is to use numerical offsets, and only use human readable timezones when you have to show it to users.
 
 ### Couldn't all of this complexity been avoided by just using DateTime object/unix time?
 
