@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "Joda-Time Daylight Savings Hour"
+title:  "Joda-Time Daylight Savings Time"
 date:   2017-05-17 16:00:00 -0700
 categories: Joda-Time Timezone
 ---
 
 **tl;dr:** Be very careful when parsing DateTimeFormat with PST or PDT with `joda.time.DateTime`. **`joda.time.DateTime` does not know the difference between PST/PDT when parsing a string.** In you can, use 'ZZ' (-08:00) instead of 'zzz' (PST). [Joda-Time Formats][joda-time-format]
 
-### Daylight Savings Hour
+### Daylight Savings Time
 
 
 Pop quiz: what's the difference between PST and PDT (or EST vs EDT)? The answer is the first stands for Pacific _Standard_ Time, and the second stands for Pacific _Daylight_ Time. More concretely, PST is UTC-08:00 (UTC time minus 8 hours), whereas PDT is UTC-07:00 (UTC minus 7 hours). 
