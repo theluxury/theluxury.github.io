@@ -5,7 +5,7 @@ date:   2017-06-19 16:00:00 -0700
 categories: Query Optimization
 ---
 
-**tl;dr:** Be very careful when using temp tables, especially when filtering against results from them. Performance using it seems very variable and can have up to 100x performance hits. If possible, compare your queries using temporary tables with hardcoded queries that don't use them.
+**tl;dr:** Be very careful when using temp tables, especially when filtering against results from them. Performance using temp tables seems very variable and can be up to 100x slower. If possible, compare your queries using temp tables with hardcoded queries that don't use them.
 
 ### Filtering on temporary tables performance
 
