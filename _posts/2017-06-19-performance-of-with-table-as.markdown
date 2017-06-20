@@ -9,7 +9,7 @@ categories: Query Optimization
 
 ### Filtering on temporary tables performance
 
-Pop quiz: We have a view `fact.user_tracking_view` and with a sort key of `time_occurred_pst`. Below are three queries that return how many events happened yesterday. Can you guess the relative performance of each?
+Pop quiz: We have a view `fact.user_tracking_view` and with a sort key of `time_occurred_pst`. Below are three queries that return the number of records that happened yesterday. Can you guess the relative performance of each?
 
 {% highlight sql %}
 -- First Query
@@ -30,7 +30,7 @@ where time_occurred_pst > (current_timestamp at time zone 'PST8PDT'::date - inte
 and time_occurred_pst < (current_timestamp at time zone 'PST8PDT'::date - interval '1 day');
 {% endhighlight %}
 
-These queries all look pretty similuar; however, the **first query is actually ~100x slower**. For my Redshift table, the first finishes in around 20 seconds, whereas the second and third takes around 200 milliseconds. **The performance hit is HUUUUUUUUUUUUUUUUUUUUUUUUGGGGGGGGGGGGGGGEEEEEEEEEEEEEEE.**
+These queries all look pretty similuar; however, **the first query is actually ~100x slower**. For my Redshift table, the first finishes in around 20 seconds, whereas the second and third takes around 200 milliseconds. **The performance hit is HUUUUUUUUUUUUUUUUUUUUUUUUGGGGGGGGGGGGGGGEEEEEEEEEEEEEEE.**
 
 ### What's the deal?
 
