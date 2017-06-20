@@ -9,7 +9,17 @@ categories: Query Optimization
 
 ### with table as... Performance
 
-Pop quiz: Which of the following are faster?
+Pop quiz: how much faster is the second query than the first?
+
+{% highlight sql}
+-- First Query
+with test_date as (select (current_timestamp at time zone 'PST8PDT' - interval '34 hours')::date::timestamp)
+select count(*)::decimal from fact.user_tracking_view 
+	where time_occurred_pst > ((select timestamp from test_date) - interval '7 days')::timestamp
+    AND time_occurred_pst < ((select timestamp from test_date) - interval '6 days')::timestamp;
+
+    
+
 
 
 
