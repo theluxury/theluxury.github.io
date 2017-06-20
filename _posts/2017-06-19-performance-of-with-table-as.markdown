@@ -34,7 +34,7 @@ These queries all look pretty similuar; however, **the first query is actually ~
 
 ### What's the deal?
 
-I'm not really sure. Doing an explain query on the three, the first two queries have actually very similar explain paths. You might think the filter condition `where time_occurred_pst > ((select timestamp from today) - interval '2 day')` violates the per row conversion rule I talk about [here]({% post_url 2017-04-26-timestamp-conversions-in-looker %}), but that doesn't seem to be the case as the third query is also quite fast.
+I'm not really sure. Doing an explain query on the three, the first two queries have actually very similar query paths/costs. You might think the filter condition `where time_occurred_pst > ((select timestamp from today) - interval '2 day')` violates the per row conversion rule I talk about [here]({% post_url 2017-04-26-timestamp-conversions-in-looker %}), but that doesn't seem to be the case as the third query is also quite fast.
 
 So, the lesson is be careful when using temporary tables. **Try to avoid performing operations on values from temporary tables, and try to benchmark queries using temporary tables against queries using hard coded values.**
 
